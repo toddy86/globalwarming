@@ -11,7 +11,7 @@ URL: https://data.nodc.noaa.gov/cgi-bin/iso?id=gov.noaa.ncdc:C00516
 ## Database
 The database folder contains: 
 * SQL code user to generate the MySQL database, tables and constraints
-* Database schema diagram 
+* **TODO: Database schema diagram 
 * Data dictionary
 
 The database has been created using MySQL 5.X.
