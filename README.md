@@ -8,6 +8,13 @@ The data being used is the Global Surface Summary of the Day ("GSOD") dataset, w
 
 URL: https://data.nodc.noaa.gov/cgi-bin/iso?id=gov.noaa.ncdc:C00516 
 
+Data were downloaded as .tar.gz files for each calendar year. The zipped files contained a single CSV file for each weather station in the dataset. 
+
+To extract the CSV files, the following command was run in the terminal:
+
+for g in *.tar.gz; do tar -xjf $g; done
+
+
 ## Database
 The database folder contains: 
 * SQL code user to generate the MySQL database, tables and constraints
@@ -16,4 +23,4 @@ The database folder contains:
 
 The database has been created using MySQL 5.X.
 
-
+## Data Wrangling
