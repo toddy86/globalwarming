@@ -19,8 +19,28 @@ for g in *.tar.gz; do tar -xjf $g; done
 The database folder contains: 
 * SQL code user to generate the MySQL database, tables and constraints
 * **TODO: Database schema diagram** 
+* **TODO: Fix NaN before loading final data into database**
 * Data dictionary
 
-The database has been created using MySQL 5.X.
+The database has been created using MySQL 5.7.26
 
 ## Data Wrangling
+**Station Details**  
+The following key data cleaning and pre-processing steps have been completed in a Jupyter notebook:
+* Using Google Maps API, fetched the geolocation details of the weather stations (e.g. city name, country etc) using the lat and long attributes
+  
+Things to do differently next time:  
+* Filter out all weather stations with missing lat / lon coordinates before calling Google Maps API. This would have saved 1,700 unnecessary API calls. I was already part way through the process when I realised. 
+
+**Weather Station Records (GSOD)**  
+The following key data cleaning and pre-processing steps have been completed in a Jupyter notebook:  
+* Dropped unnecessary variables (e.g. latitude, longitude)
+* Replace missing values (999.9 and 9999.9 with np.NaN)
+* Updated column names for consistency
+* Calculated monthly temperature averages (daily too granular and too heavily influenced by outliers)
+* Calculated monthly minimum and maximum temperatues
+* Saved the data to feater format for faster access in Python
+* Saved the data to JSON for portability (if required)
+* Loaded the data to MySQL database
+
+
