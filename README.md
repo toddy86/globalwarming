@@ -19,7 +19,6 @@ for g in *.tar.gz; do tar -xjf $g; done
 The database folder contains: 
 * SQL code user to generate the MySQL database, tables and constraints
 * **TODO: Database schema diagram** 
-* **TODO: Fix NaN before loading final data into database**
 * Data dictionary
 
 The database has been created using MySQL 5.7.26
@@ -43,4 +42,5 @@ The following key data cleaning and pre-processing steps have been completed in 
 * Saved the data to JSON for portability (if required)
 * Loaded the data to MySQL database
 
-
+**Redundant Weather Stations**  
+* Completed set intersection of StationDetails to StationRecords to ensure foreign key constraints do not fail + removal of redundant data
