@@ -1,3 +1,5 @@
 # Ignore data folder
-
 data/
+
+# Ignore README file
+README.md
