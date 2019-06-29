@@ -1,12 +1,3 @@
-"""
-TODO:
-- Add today's temp (API)
-- Add 5 day forecast (API)
-- Add long range forecast (ML algo)
-- Find out why cities like London, Paris etc are not in the dataset
-
-"""
-
 # Import required libraries and custom functions
 from functions import * 
 
