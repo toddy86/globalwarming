@@ -80,6 +80,6 @@ The following are a few examples of the current version of the app. These will b
 ![](screenshot #2.png)
 
 **Updating the graph to only display the maximum temperature**   
-![](https://github.com/toddy86/globalwarming/master/screenshots/screenshot#1.png)
+![](https://github.com/toddy86/globalwarming/master/screenshots/screenshot1.png)
 
 
