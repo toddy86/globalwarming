@@ -66,19 +66,19 @@ app.layout = html.Div(children=[
         [
             tile(
                 "#00cc96",
-                "Minimum Temperature",
+                "Change in Minimum Temperature",
                 "tile1",
                 "tile1_year_range",
             ),
             tile(
                 "#EF553B",
-                "Maximum Temperature",
+                "Change in Maximum Temperature",
                 "tile2",
                 "tile2_year_range",
             ),
             tile(
                 "#EF553B",
-                "Average Temperature",
+                "Change in Average Temperature",
                 "tile3",
                 "tile3_year_range",
             ),            
