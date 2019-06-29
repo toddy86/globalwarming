@@ -1,13 +1,14 @@
-# Import required libraries
-import pandas as pd
-import pymysql.cursors
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import plotly.graph_objs as go
-from dash.dependencies import Input, Output
-import pymysql.cursors
-import pandas as pd
+"""
+TODO:
+- Add today's temp (API)
+- Add 5 day forecast (API)
+- Add long range forecast (ML algo)
+- Find out why cities like London, Paris etc are not in the dataset
+
+"""
+
+# Import required libraries and custom functions
+from functions import * 
 
 
 # Load external style sheets
@@ -15,69 +16,24 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-# Connect to the database
-connection = pymysql.connect(
-    host='localhost',
-    user='root',
-    password='',
-    db='globalwarming',
-    charset='utf8mb4',
-    cursorclass=pymysql.cursors.DictCursor)
+## ******************************** ##
+## CREATE MENUS
+## ******************************** ##
+# SQL query to return cities
+select_cities = """
+    SELECT CONCAT(IFNULL(StationDetails.City,''), ", ", IFNULL(StationDetails.State,''), ", ", IFNULL(StationDetails.Country,'')) as City
+    FROM StationDetails""" 
+df = run_sql_query(select_cities)
+
+# Create menu options
+cities = list(df.City.unique())
+temperature_options = ["Fahrenheit", "Celsius"]
 
 
-# Query the database
-try: 
-    # SQL query
-    sql_query = """
-    SELECT 
-        StationRecords.StationId as StationId, 
-        StationRecords.Year as Year,
-        StationRecords.`Month` as `Month`,
-        StationRecords.AvgMaxTemp as AvgMaxTemp,
-        StationRecords.AvgMinTemp as AvgMinTemp,
-        StationRecords.MaxTemp as MaxTemp,
-        StationRecords.MinTemp as MinTemp,
-        StationRecords.MaxMinTemp as MaxMinTemp,
-        CONCAT(StationDetails.City, ",", StationDetails.Country) as City
-    FROM StationRecords
-    JOIN StationDetails ON StationRecords.StationId = StationDetails.StationId
-    WHERE Year in (2016, 2017, 2018)
-    """ 
-    #CONCAT(StationDetails.City, ",", StationDetails.Country) = 'Zermatt,Switzerland' AND
 
-    # Query database
-    df = pd.read_sql(sql_query, connection)
-
-    # Create menu options
-    cities = list(df.City.unique())
-    months = list(df.Month.unique())
-
-    # Calculate City averages (if more than one weather station in the city)
-    df = df.groupby(['City','Year']).mean() # month removed temporarily
-    df = df.reset_index()  
-
-except:
-    print("Something went wrong with the MySQL connection")
-
-finally:
-    connection.close()
-
-
-# *********** TO BE DELETED LATER *******************
-# Generate table with dataframe contents
-def generate_table(dataframe, max_rows=100):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
-
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
-# *************************************************
-
-
+## ******************************** ##
+## APP LAYOUT
+## ******************************** ##
 # Define the app layout
 app.layout = html.Div(children=[
     html.H1(children='Global Warming and You'),
@@ -87,62 +43,152 @@ app.layout = html.Div(children=[
         A glance into how global warming is affecting you and where you live.
     '''),
 
+
     # City selection dropdown menu 
-    html.Div([
-        dcc.Dropdown(
-            id = 'city-selector',
-            options = [{'label': i, 'value': i} for i in cities],
-            value = 'Zermatt,Switzerland'
-        ),
-    ],
+    html.Div(
+        [
+            dcc.Dropdown(
+                id = 'city-selector',
+                options = [{'label': i, 'value': i} for i in cities],
+                value = cities[0]
+            ),
+        ],
      style={'width': '48%', 'display': 'inline-block'}),
     
 
-    # Month selection dropdown menu 
-    html.Div([
-        dcc.Dropdown(
-            id = 'month-selector',
-            options = [{'label': i, 'value': i} for i in months],
-            value = ''
-        ),
-    ],
+
+    # Temperature format radio selection menu 
+    html.Div(
+        [
+            dcc.RadioItems(
+                id = 'temp-selector',
+                options = [{'label': i, 'value': i} for i in temperature_options],
+                value = 'Fahrenheit'
+            ),
+        ],
      style={'width': '48%', 'display': 'inline-block'}),
 
-    # Display table
-    #generate_table(df),
 
+
+    #Row of tiles
+    html.Div(
+        [
+            tile(
+                "#00cc96",
+                "Minimum Temperature",
+                "tile1",
+                "tile1_year_range",
+            ),
+            tile(
+                "#EF553B",
+                "Maximum Temperature",
+                "tile2",
+                "tile2_year_range",
+            ),
+            tile(
+                "#EF553B",
+                "Average Temperature",
+                "tile3",
+                "tile3_year_range",
+            ),            
+            
+        ],
+        className="row"),
+
+    # Main lineplot of temperature over time
     dcc.Graph(id='temperature-graphic')
-
-    # Display linechart using callback
-    #dcc.Graph(id='temperature-graphic')
-    #html.Div(id='temperature-graphic')
+    
 ])
 
 
+
+## ******************************** ##
+## CALLBACKS
+## ******************************** ##
+
+# Updates tile values
+@app.callback(
+    Output("tile1", "children"),
+    [Input('city-selector', 'value'),
+    Input('temp-selector', 'value')],
+)
+def tile1_callback(city_value, temp_value):
+   return calc_temp_change(city_value, temp_value, "MinTemp")
+
+@app.callback(
+    Output("tile2", "children"),
+    [Input('city-selector', 'value'),
+    Input('temp-selector', 'value')],
+)
+def tile2_callback(city_value, temp_value):
+   return calc_temp_change(city_value, temp_value, "MaxTemp")
+
+@app.callback(
+    Output("tile3", "children"),
+    [Input('city-selector', 'value'),
+    Input('temp-selector', 'value')],
+)
+def tile3_callback(city_value, temp_value):
+   return calc_temp_change(city_value, temp_value, "AvgTemp")
+
+
+
+
+# Updates the tile year ranges
+@app.callback(
+    Output("tile1_year_range", "children"),
+    [Input('city-selector', 'value')],
+)
+def tile1_year_range_callback(city_value):
+    return calc_year_range(city_value)
+
+@app.callback(
+    Output("tile2_year_range", "children"),
+    [Input('city-selector', 'value')],
+)
+def tile2_year_range_callback(city_value):
+    return calc_year_range(city_value)
+
+@app.callback(
+    Output("tile3_year_range", "children"),
+    [Input('city-selector', 'value')],
+)
+def tile3_year_range_callback(city_value):
+    return calc_year_range(city_value)
+
+
+
+
+# Updates the main temperature over time linechart
 @app.callback(
     Output('temperature-graphic', 'figure'),
-    [Input('city-selector', 'value')])
+    [Input('city-selector', 'value'),
+    Input('temp-selector', 'value')])
 
-def update_graph(city_value):
-    # Create filtered df based on the month_value selected
-    dff = df[df.City == city_value]
-    dff = dff.reset_index()
+def update_graph(city_value, temp_value):
+    # Temperature variables to display on the graph
+    temp_vars = ["MaxTemp","MinTemp", "AvgTemp"]
 
-    figure={
-        'data': [
-            go.Scatter(
-                x = dff['Year'],
-                y = dff['AvgMaxTemp'],
-            ) for i in dff.Month.unique()
-        ],
+    # Calculate df for the city
+    df = calc_city_df(city_value, temp_value) 
+
+
+    # Create lineplot for each temp variable
+    traces = []
+    for i in temp_vars:
+        traces.append(go.Scatter(
+                x = df['Year'],
+                y = df[i],
+                name = i
+        ))
+
+    # Generate and return the plot 
+    return {
+        'data': traces,
         'layout': {
-            'title': dff.City[0]
+            'title': df.City[0]
         }
     }
-
-    return figure
-
-  
 
 
 
