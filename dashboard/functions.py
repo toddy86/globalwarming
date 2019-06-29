@@ -11,9 +11,16 @@ import pandas as pd
 
 
 def run_sql_query(sql):
-    '''
-    sql = str. SQL query to be run on the database
-    returns pd.DataFrame
+    ''' Run an SQL query against the app database and return the results in a pandas DataFrame.
+
+    Args: 
+        sql (str): SQL query to be run on the database
+
+    Todo:
+        Implement exception handling in case of database connection error
+
+    Returns:
+        pd.DataFrame: The results of the SQL query as a pandas DataFrame
     '''
 
     # Connect to the database
@@ -25,7 +32,6 @@ def run_sql_query(sql):
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor)
 
-    ## TODO: IMPLEENT TRY AND EXCEPT BLOCK
     # Query database
     df = pd.read_sql(sql, connection)
     df = df.reset_index()
@@ -37,10 +43,19 @@ def run_sql_query(sql):
     return df
 
 def fahrenheit_to_celsius(df, columns):
-    '''
-    df = pd.DataFrame, containing one or more columns which are in degrees Fahrenheit
-    columns = list of strings corresponding to the columns which are to be converted into degrees celsius 
-    returns pd.Dataframe
+    ''' Convert temperture from degrees Fahrenheit to degrees celsius
+
+    Args: 
+        df (pd.DataFrame): Dataframe containing temperature column(s) in degrees Fahrenehit
+        columns (list): A list of strings of the column name(s) to be converted into degrees Celsius
+
+    Todo:
+        Exeption handling of non-string values passed in
+        Exception handlign of column names which do not exist
+        Exception handling for convertion errors
+
+    Returns:
+        pd.Dataframe: Returns the entire dataframe with the specified columns converted into degrees Celsisus
     '''
 
     # For each specified column, convert the temperature from Fahrenheit to celsius
@@ -51,9 +66,19 @@ def fahrenheit_to_celsius(df, columns):
 
 
 def calc_city_df(city_value, temp_value = "Fahrenheit", temp_vars = ["MaxTemp","MinTemp", "AvgTemp"]):
-    '''
-    TODO: DOC STRINGS
-    TODO: Make SQL query iterable based on the number of vars in the temp_vars list
+    ''' Calculate and return the historical temperature data for a specified city.
+
+    Args:
+        city_value (str): The name of the city to be queried in the database. 
+        temp_value (str): Whether the data is to be displayed as Fahrenheit or Celsius.
+        temp_vars (list): List of strings of the temperature metrics to display
+    
+    Todo: 
+        Make city_value default value (if none) to be dynamic based on the data in the dataset
+        Make SQL query iterable / programmatic based on the values in the temp_vars list. Current risk of mismatch
+
+    Returns: 
+        pd.DataFrame
     '''
 
     ## Set city value to default city if selection is cleared to avoid error
@@ -98,10 +123,19 @@ def calc_city_df(city_value, temp_value = "Fahrenheit", temp_vars = ["MaxTemp","
     return df
 
 
-
-
-#returns top tile div
 def tile(color, text, id_value, id_year_range):
+    """ Create the top row / div for the weather KPI tiles
+
+    Args:
+        color (str): colour hex code to display the tile in
+        text: (str): Tile title to display
+        id_value (str): Unique name of the tile (e.g. tile1)
+        id_year_range (str): Text of the year range which the data covers (e.g. "1960 to 2009")
+
+    Returns:
+        html.Div
+    """
+
     return html.Div(
         [
             
@@ -123,11 +157,14 @@ def tile(color, text, id_value, id_year_range):
     )
 
 
-
 def calc_year_range(city_value):
-    '''
-    city_value = str. User input from using the city selector
-    returns str value of the year range which the weather data covers for the particualr city
+    ''' Create the string of year range which the data covers
+
+    Args: 
+        city_value (str): Name of the city to query against the database
+
+    Returns: 
+        str: the year range (e.g. "1960 to 2009")
     '''
 
     # Calulcate and return the dataframe for the city
@@ -142,11 +179,16 @@ def calc_year_range(city_value):
 
 
 
-def calc_temp_change(city_value, temp_value, column_name):
-    '''
-    city_value = str. User input from using the city selector
-    temp_value = User input from using the temperature radio option of Fahrenheit or Celsius
-    returns float rounded to 2 decimals of the temperature change from the earliest record to the latest for the city
+def calc_temp_change(city_value, temp_value, temp_var):
+    ''' Calculate the temperature change from the start date to the end date of the data in the dataset
+ 
+    Args: 
+        city_value (str): Name of the city to query in the databas
+        temp_value (str): String of either "Fahreneheit" or "Celsisus" 
+        temp_var (str): Name of the temperature variable to calculate the temp change of
+
+    Returns:
+        float: Change in temp_var rounded to 2 decimals
     '''
 
     # Calulcate and return the dataframe for the city
@@ -155,8 +197,8 @@ def calc_temp_change(city_value, temp_value, column_name):
     # Calculate change in temperature between min and max years
     start_year = min(df.Year)
     end_year = max(df.Year)
-    start_temp = df.loc[df["Year"] == start_year, column_name].unique()[0]
-    end_temp = df.loc[df["Year"] == end_year, column_name].unique()[0]
+    start_temp = df.loc[df["Year"] == start_year, temp_var].unique()[0]
+    end_temp = df.loc[df["Year"] == end_year, temp_var].unique()[0]
     temp_change = end_temp - start_temp
 
     return round(temp_change,2)
