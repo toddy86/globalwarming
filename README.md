@@ -74,10 +74,12 @@ The following key data cleaning and pre-processing steps have been completed in 
 The following are a few examples of the current version of the app. These will be updated as the app progresses.
 
 **Dashboard in degrees Celsius**   
+![](screenshot #1.png)
 
 **Searching for cities in the database**   
+![](screenshot #2.png)
 
 **Updating the graph to only display the maximum temperature**   
-
+![](screenshots/screenshot #3.png)
 
 
