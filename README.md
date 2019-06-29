@@ -64,14 +64,20 @@ The following key data cleaning and pre-processing steps have been completed in 
 **Redundant Weather Stations**  
 * Completed set intersection of StationDetails to StationRecords to ensure foreign key constraints do not fail + removal of redundant data
 
-
 **To-do List**  
 * Finalise historical temperature dashboard 
 * Implement navigation pane to other pages
 * Implement 5-day city forecast page using machine learning algorithms to predict the temperature
 * Implement a long-range (i.e. 20-50 year) forecast of expected global temperatures using statistical / machine learning methods
 
+## Screenshots
+The following are a few examples of the current version of the app. These will be updated as the app progresses.
 
+**Dashboard in degrees Celsius**   
+
+**Searching for cities in the database**   
+
+**Updating the graph to only display the maximum temperature**   
 
 
 
