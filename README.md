@@ -83,4 +83,4 @@ The following are a few examples of the current version of the app. These will b
 ![](https://github.com/toddy86/globalwarming/blob/master/screenshots/Screenshot3.png)
 
 **New sidebar menu**   
-![](https://github.com/toddy86/globalwarming/blob/master/screenshots/Screenshot4.png)
+![](https://github.com/toddy86/globalwarming/blob/master/screenshots/screenshot4.png)
