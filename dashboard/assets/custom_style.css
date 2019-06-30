@@ -50,8 +50,11 @@ body{
 }
 
 .row{
-    margin-left: 10px;
-    margin-right: 10px;
+    /*margin-left: 10px;
+    #margin-right: 10px;
+    */
+    display: flex;
+    justify-content: space-evenly;
 }
 
 .tile{
@@ -83,7 +86,7 @@ body{
 }
 
 .four.columns {
-    width: 20.67%;
+    width: 33%;
 }
 
 

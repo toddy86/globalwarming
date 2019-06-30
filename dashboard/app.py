@@ -10,11 +10,20 @@ TODO:
 # Import required libraries and custom functions
 from functions import * 
 
+# Dash app
+app = dash.Dash(__name__)
 
 # Load external style sheets
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+external_css = [
+    "https://codepen.io/chriddyp/pen/bWLwgP.css",
+    #"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    "https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css",
+    #"https://cdn.rawgit.com/amadoukane96/8f29daabc5cacb0b7e77707fc1956373/raw/854b1dc5d8b25cd2c36002e1e4f598f5f4ebeee3/test.css",
+    "https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+]
 
+for css in external_css:
+    app.css.append_css({"external_url": css})
 
 ## ******************************** ##
 ## CREATE MENUS
@@ -35,69 +44,124 @@ temperature_options = ["Fahrenheit", "Celsius"]
 ## APP LAYOUT
 ## ******************************** ##
 # Define the app layout
-app.layout = html.Div(children=[
-    html.H1(children='Global Warming and You'),
+app.layout = html.Div([
 
-    # Heading
-    html.Div(children='''
-        A glance into how global warming is affecting you and where you live.
-    '''),
-
-
-    # City selection dropdown menu 
+    # Left side menu
     html.Div(
         [
-            dcc.Dropdown(
-                id = 'city-selector',
-                options = [{'label': i, 'value': i} for i in cities],
-                value = cities[0]
+            # Title and sub-title
+            html.H1([
+                'Global Warming'
+                ], 
+                style={
+                "text-align": "center"
+                }
+            ),
+
+            html.P([
+                "A glance into how global warming is affecting you and where you live."
+                ], 
+                style={
+                    "text-align": "center"
+                }
+            ),
+
+            # City menu
+            html.Div(
+                [
+                    html.P(
+                        ["City"], 
+                        style={
+                            "font-weight": "600"
+                        }
+                    ),
+                    dcc.Dropdown(
+                        id = 'city-selector',
+                        options = [{'label': i, 'value': i} for i in cities],
+                        value = cities[0]
+                    )
+                ], 
+                style={
+                    "padding-bottom": "20px"
+                }
+            ),
+
+            # Temperature selector
+            html.Div(
+                [
+                    html.P(
+                        ["Temperature"],
+                        style={
+                        "font-weight": "600"
+                        }
+                    ),
+                    dcc.RadioItems(
+                        id = 'temp-selector',
+                        options = [{'label': i, 'value': i} for i in temperature_options],
+                        value = 'Fahrenheit'
+                    )
+                ]
             ),
         ],
-     style={'width': '48%', 'display': 'inline-block'}),
-    
+        className="three columns",
+        style={
+            'height': '100%',
+            "padding": "10",
+            "margin-top": "10px",
+            "margin-left": "10px",
+            "height":"100%"
+        },
+    ),
 
 
-    # Temperature format radio selection menu 
+    # Main content
     html.Div(
         [
-            dcc.RadioItems(
-                id = 'temp-selector',
-                options = [{'label': i, 'value': i} for i in temperature_options],
-                value = 'Fahrenheit'
+        #Row of tiles
+            html.Div(
+                html.Div(
+                    [
+                        tile(
+                            "#00cc96",
+                            "Change in Min Temperature",
+                            "tile1",
+                            "tile1_year_range",
+                        ),
+                        tile(
+                            "#EF553B",
+                            "Change in Max Temperature",
+                            "tile2",
+                            "tile2_year_range",
+                        ),
+                        tile(
+                            "#EF553B",
+                            "Change in Avg Temperature",
+                            "tile3",
+                            "tile3_year_range",
+                        ),            
+                    ],
+                    style={
+                        "display": "inline-block",
+                        "display": "-moz-inline-box",
+                        "width": "100%",
+                        "text-align": "center"
+                    }
+                ),
+                className="row",
             ),
-        ],
-     style={'width': '48%', 'display': 'inline-block'}),
 
-
-
-    #Row of tiles
-    html.Div(
-        [
-            tile(
-                "#00cc96",
-                "Change in Minimum Temperature",
-                "tile1",
-                "tile1_year_range",
-            ),
-            tile(
-                "#EF553B",
-                "Change in Maximum Temperature",
-                "tile2",
-                "tile2_year_range",
-            ),
-            tile(
-                "#EF553B",
-                "Change in Average Temperature",
-                "tile3",
-                "tile3_year_range",
-            ),            
-            
-        ],
-        className="row"),
-
-    # Main lineplot of temperature over time
-    dcc.Graph(id='temperature-graphic')
-    
+            # Main lineplot of temperature over time
+            html.Div(
+                dcc.Graph(id='temperature-graphic')
+            )
+        ], 
+        className="nine columns",
+        id="rightpanel",
+        style={
+            #"backgroundColor": "#18252E",
+            "height": "100%"
+        },
+    )
 ])
 
 
