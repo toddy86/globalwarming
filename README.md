@@ -1,7 +1,7 @@
 # Global Warming Project
 
 **THIS PROJECT IS STILL A WORK IN PROGRESS**  
-Last updated 28 June 2019
+Last updated 30 June 2019
 
 ## Project Goal
 The objective of this project is to create an interactive dashboard which provides information about how global warming is affecting individual cities around the globe. It is hoped that if people are able to see the impact which global warming is having on the city in which they live, that they will be more inclined to take action and help prevent further damage to the globe.
@@ -82,4 +82,5 @@ The following are a few examples of the current version of the app. These will b
 **Updating the graph to only display the maximum temperature**   
 ![](https://github.com/toddy86/globalwarming/blob/master/screenshots/Screenshot3.png)
 
-
+**New sidebar menu**   
+![](https://github.com/toddy86/globalwarming/blob/master/screenshots/Screenshot4.png)
