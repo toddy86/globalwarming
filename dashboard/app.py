@@ -16,9 +16,7 @@ app = dash.Dash(__name__)
 # Load external style sheets
 external_css = [
     "https://codepen.io/chriddyp/pen/bWLwgP.css",
-    #"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
     "https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css",
-    #"https://cdn.rawgit.com/amadoukane96/8f29daabc5cacb0b7e77707fc1956373/raw/854b1dc5d8b25cd2c36002e1e4f598f5f4ebeee3/test.css",
     "https://use.fontawesome.com/releases/v5.2.0/css/all.css"
 ]
 
@@ -50,20 +48,14 @@ app.layout = html.Div([
     html.Div(
         [
             # Title and sub-title
-            html.H1([
-                'Global Warming'
-                ], 
-                style={
-                "text-align": "center"
-                }
+            html.H1(
+                ['Global Warming'], 
+                style={"text-align": "center"}
             ),
 
-            html.P([
-                "A glance into how global warming is affecting you and where you live."
-                ], 
-                style={
-                    "text-align": "center"
-                }
+            html.P(
+                ["A glance into how global warming is affecting you and where you live."], 
+                style={"text-align": "center"}
             ),
 
             # City menu
@@ -71,9 +63,7 @@ app.layout = html.Div([
                 [
                     html.P(
                         ["City"], 
-                        style={
-                            "font-weight": "600"
-                        }
+                        style={"font-weight": "600"}
                     ),
                     dcc.Dropdown(
                         id = 'city-selector',
@@ -81,9 +71,7 @@ app.layout = html.Div([
                         value = cities[0]
                     )
                 ], 
-                style={
-                    "padding-bottom": "20px"
-                }
+                style={"padding-bottom": "20px"}
             ),
 
             # Temperature selector
@@ -91,9 +79,7 @@ app.layout = html.Div([
                 [
                     html.P(
                         ["Temperature"],
-                        style={
-                        "font-weight": "600"
-                        }
+                        style={"font-weight": "600"}
                     ),
                     dcc.RadioItems(
                         id = 'temp-selector',
@@ -117,7 +103,12 @@ app.layout = html.Div([
     # Main content
     html.Div(
         [
-        #Row of tiles
+        # Historical averages 
+        html.H3(
+            ["Historical Averages"], 
+            style={"text-align" : "center"}
+        ),
+            #Row of tiles
             html.Div(
                 html.Div(
                     [
@@ -152,15 +143,18 @@ app.layout = html.Div([
 
             # Main lineplot of temperature over time
             html.Div(
-                dcc.Graph(id='temperature-graphic')
+                [dcc.Graph(id='temperature-graphic')]
             )
         ], 
+
+        # Styling of the main div element
         className="nine columns",
         id="rightpanel",
         style={
             #"backgroundColor": "#18252E",
-            "height": "100%"
-        },
+            "height": "100%",
+            "margin-top": "10px"
+        }
     )
 ])
 
