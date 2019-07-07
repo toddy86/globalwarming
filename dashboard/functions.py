@@ -6,9 +6,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
-import pymysql.cursors
-import pandas as pd
-
+import datetime
+from apixu.client import ApixuClient
+import numpy as np
 
 def run_sql_query(sql):
     ''' Run an SQL query against the app database and return the results in a pandas DataFrame.
@@ -55,17 +55,17 @@ def fahrenheit_to_celsius(df, columns):
         Exception handling for convertion errors
 
     Returns:
-        pd.Dataframe: Returns the entire dataframe with the specified columns converted into degrees Celsisus
+        pd.Dataframe: Returns the entire dataframe with the specified columns converted into degrees Celsius
     '''
 
     # For each specified column, convert the temperature from Fahrenheit to celsius
     for i in columns:
-        df[i] = (df.loc[:,i] - 32) * 5 / 9
+        df[i] = round((df.loc[:,i] - 32) * 5 / 9, 1)
 
     return df 
 
 
-def calc_city_df(city_value, temp_value = "Fahrenheit", temp_vars = ["MaxTemp","MinTemp", "AvgTemp"]):
+def calc_city_df(city_value, temp_value = "Celsius", temp_vars = ["MaxTemp","MinTemp", "AvgTemp"]):
     ''' Calculate and return the historical temperature data for a specified city.
 
     Args:
@@ -81,9 +81,6 @@ def calc_city_df(city_value, temp_value = "Fahrenheit", temp_vars = ["MaxTemp","
         pd.DataFrame
     '''
 
-    ## Set city value to default city if selection is cleared to avoid error
-    if city_value is None:
-        city_value = "New York, New York, United States"
 
     select_data = """
     SELECT 
@@ -133,7 +130,7 @@ def tile(color, text, id_value, id_year_range):
         id_year_range (str): Text of the year range which the data covers (e.g. "1960 to 2009")
 
     Returns:
-        html.Div
+        html.Div: of the tile
     """
 
     return html.Div(
@@ -184,7 +181,7 @@ def calc_temp_change(city_value, temp_value, temp_var):
  
     Args: 
         city_value (str): Name of the city to query in the databas
-        temp_value (str): String of either "Fahreneheit" or "Celsisus" 
+        temp_value (str): String of either "Fahrenheit" or "Celsius" 
         temp_var (str): Name of the temperature variable to calculate the temp change of
 
     Returns:
@@ -202,4 +199,171 @@ def calc_temp_change(city_value, temp_value, temp_var):
     temp_change = end_temp - start_temp
 
     return round(temp_change,2)
+
+
+
+def get_daily_history(city_value):
+    ''' Get 12 day weather history from the earliest records in the database
+ 
+    Args: 
+        city_value (str): Name of the city to query in the databas
+        temp_value (str): String of either "Fahrenheit" or "Celsius"
+
+    Returns:
+        pd.DataFrame: Dataframe with the city (for debugging), date, maxtemp for the 12 day period
+    '''
+    
+    try:
+        #Get min year of data from DB (either 60's, 70's or 80's)
+        select_data = """
+        SELECT
+            CONCAT(City, ", " ,State, ", " ,Country) as City,
+            MIN(YEAR(Date)) as 'Year'
+        FROM DailyAvg
+        JOIN StationDetails ON StationDetails.StationId = DailyAvg.StationId
+        WHERE CONCAT(City, ", " ,State, ", " ,Country) = {}
+        GROUP BY CONCAT(City, ", " ,State, ", " ,Country);
+        """.format(("'" + city_value + "'"))
+
+        df_minyear = run_sql_query(select_data)
+        start_year = int(df_minyear['Year'])
+
+        # Calculate the comparative period based on the start_year
+        now = datetime.datetime.now()
+        comparative_period = now.year - (now.year - start_year)
+        start_date = datetime.date(comparative_period, now.month, now.day) - datetime.timedelta(days=7)
+        end_date = datetime.date(comparative_period, now.month, now.day) + datetime.timedelta(days=5)
+
+        # Format the start and end date for SQL
+        start_date = ("'" + start_date.strftime('%Y-%m-%d') + "'")
+        end_date = ("'" + end_date.strftime('%Y-%m-%d') + "'")
+
+        # Get comparative daily temperatures
+        select_data = """
+        SELECT
+            Date, 
+            ROUND(AVG(MaxTemp),2) as MaxTemp
+        FROM DailyAvg
+        JOIN StationDetails ON StationDetails.StationId = DailyAvg.StationId
+        WHERE 
+            CONCAT(City, ", " ,State, ", " ,Country) = {}
+            AND Date >= {} AND Date <= {}
+        GROUP BY Date
+        ORDER BY Date
+        """.format(("'" + city_value + "'"), start_date, end_date)
+
+        df = run_sql_query(select_data)
+
+        # Rename column and drop date
+        df = df.rename(columns={'MaxTemp': df.Date[0].year})
+        df = df.drop(columns='Date')
+
+        return df
+    except TypeError:
+        return
+
+
+
+
+
+# Setup for get_7day_history function
+file = open("/Users/todddequincey/globalwarming/dashboard/apixu_weather_api_key.txt")
+api_key = file.read()
+client = ApixuClient(api_key)
+
+def get_recent_weather(city_value, temp_value = "Celsius"):
+    ''' Get 7 day weather history + 5 day forecast from today's date
+ 
+    Args: 
+        city_value (str): Name of the city to query in the databas
+        temp_value (str): String of either "Fahrenheit" or "Celsius"
+
+    Returns:
+        pd.DataFrame: Dataframe with the date, max, min and average temperatures for the past 7 days + forecast of coming 5
+    '''
+    
+    # List of dictionatries of the data
+    data = []
+
+    # Get 7 day weather history
+    # Individual API calls for historical data req, due to restrictions of free API
+    now = datetime.datetime.now() #TODO: Deal with time zones
+    for i in range(0,8):
+        history = client.history(q=city_value, since=datetime.date(now.year, now.month, now.day) - datetime.timedelta(days=i))
+        
+        for day in history['forecast']['forecastday']:
+            results = {
+                "Date": day['date'],
+                "Last 7 Days": day['day']['maxtemp_f'],
+                "Forecast": np.nan,
+                "MinTemp": day['day']['mintemp_f'],
+                "AvgTemp": day['day']['avgtemp_f'],
+                "MaxWind": day['day']['maxwind_kph'],
+                "TotalPrecip": day['day']['totalprecip_mm'],
+                "AvgVisib": day['day']['avgvis_km'],
+                "AvgHumid": day['day']['avghumidity'],
+                "Condition": day['day']['condition']['text'],
+                "UV": day['day']['uv']
+            }
+            
+            data.append(results)
+    
+    # Get 5 day forecast
+    forecast = client.forecast(q=city_value, days=6)
+    
+    for day in forecast['forecast']['forecastday']:        
+        results = {
+                "Date": day['date'],
+                "Last 7 Days": np.nan,
+                "Forecast":day['day']['maxtemp_f'],
+                "MinTemp": day['day']['mintemp_f'],
+                "AvgTemp": day['day']['avgtemp_f'],
+                "MaxWind": day['day']['maxwind_kph'],
+                "TotalPrecip": day['day']['totalprecip_mm'],
+                "AvgVisib": day['day']['avgvis_km'],
+                "AvgHumid": day['day']['avghumidity'],
+                "Condition": day['day']['condition']['text'],
+                "UV": day['day']['uv']
+            }
+            
+        data.append(results)
+    
+    # Create dataframe of results
+    df = pd.DataFrame(data, columns=['Date',
+                                     'AvgHumid', 
+                                     'AvgVisib', 
+                                     'Condition', 
+                                     'MaxWind', 
+                                     'TotalPrecip', 
+                                     'UV', 
+                                     'MinTemp', 
+                                     'AvgTemp', 
+                                     'Forecast', 
+                                     'Last 7 Days'])
+    df = df.sort_values('Date')
+    df = df.drop_duplicates('Date') # Drop dups in case of overlap of forecast + history dates
+    df = df.reset_index(drop=True)
+    df.loc[7,"Forecast"] = df.loc[7,"Last 7 Days"] # Replace today np.nan forecast with actual MaxTemp
+
+
+    # Get and join historical data to the df
+    try:
+        daily_hist = get_daily_history(city_value)
+        df = df.join(daily_hist)
+
+        # Return results in Fahrenheit or Celsius
+        if temp_value == "Fahrenheit":
+            return df
+        elif temp_value == "Celsius":
+            df = fahrenheit_to_celsius(df, ["Last 7 Days", "Forecast", df.columns[-1]])
+            return df
+    except TypeError:
+        # Return results in Fahrenheit or Celsius
+        if temp_value == "Fahrenheit":
+            return df
+        elif temp_value == "Celsius":
+            df = fahrenheit_to_celsius(df, ["Last 7 Days", "Forecast"])
+            return df
+
+
 

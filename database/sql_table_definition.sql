@@ -44,6 +44,17 @@ CREATE TABLE `StationRecords` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+-- Create table with daily weather station records for the 60's, 70's and 80's
+CREATE TABLE `DailyAvg` (
+  `StationId` varchar(12) NOT NULL,
+  `Date` DATE NOT NULL,
+  `Temp` decimal(6,2) DEFAULT NULL,
+  `MaxTemp` decimal(6,2) DEFAULT NULL,
+  `MinTemp` decimal(6,2) DEFAULT NULL,
+  PRIMARY KEY (`StationId`,`Date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 -- Set foreign key constraints
 ALTER TABLE StationRecords
 ADD FOREIGN KEY FK_StationRecords_StationDetails(StationId)
@@ -52,6 +63,11 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION;
 
 
+ALTER TABLE DailyAvg
+ADD FOREIGN KEY FK_DailyAvg_StationDetails(StationId)
+REFERENCES StationDetails(StationId)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
 
 
 
