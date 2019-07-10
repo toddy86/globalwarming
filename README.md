@@ -24,7 +24,8 @@ The technical objective of this project is to learn how to use the Dash library 
 * Git
 * Statistics
 
-## Data Source
+## Data Sources
+### Global Surface Summary of the Day Weather Data
 The data are obtained from the National Centers for Environmental Information, who hosts and provides public access to one of the most significant archives for environmental data on Earth. 
 
 The data being used is the Global Surface Summary of the Day ("GSOD") dataset, which provides daily weather records from 1929 to present day, although the data from 1973 onwards is considered the most complete. 
@@ -37,6 +38,15 @@ To extract the CSV files, the following command was run in the terminal:
 
 for g in \*.tar.gz; do tar -xjf $g; done
 
+### Weather Station Location Data
+The GSOD weather data has been enriched by obtaining the name of the city, state and country where the weather station is located. These data were obtained from the Google Geocoding API, using the lat and lon coordinates of the weather station. 
+
+https://developers.google.com/maps/documentation/geocoding/start
+
+### Weather Forecast Data
+The 5 day weather forecast data have been obtained using the APIUX Weather API. The weather API was queried using the city name obtained from the Google Geocoding API
+
+https://www.apixu.com/api.aspx
 
 ## Database
 The database folder contains: 
@@ -64,10 +74,13 @@ The following key data cleaning and pre-processing steps have been completed in 
 **Redundant Weather Stations**  
 * Completed set intersection of StationDetails to StationRecords to ensure foreign key constraints do not fail + removal of redundant data
 
+**Data Enrichment**  
+* Enriched the GSOD data by adding in the city, state and country name where the weather station is located. Data obtained using the Google Geocoding API, based on the lat and lon coordinates of the weather station
+
+
 **To-do List**  
-* Finalise historical temperature dashboard 
 * Implement navigation pane to other pages
-* Implement 5-day city forecast page using machine learning algorithms to predict the temperature
+* Implement 5-day maximum temperature forecast page based on an machine learning algorithm to predict the temperature. Compare ML prediction to met office forecast
 * Implement a long-range (i.e. 20-50 year) forecast of expected global temperatures using statistical / machine learning methods
 
 ## Challenges  
