@@ -88,8 +88,7 @@ The following key data cleaning and pre-processing steps have been completed in 
 During the development of this project, there have been many technical and knowledge gap challenges which I have needed to overcome. These challenges have included:  
 * Building the app whilst learning the new frameworks (Dash and Plotly) on the go.
 * Effectively cleaning and managing a big dataset with limited resources (i.e. I didn't want to pay for Google Big Query or other services to make managing a very large dataset easy)
-* Finding an API for the 5-day weather forecast model which was 1) free 2) provided historical data (most provide forecasts) and 3) looked suitable to work with the city names used in the dataset. Many of the old APIs (Yahoo, Wunderground) had been decommissioned.
-* Researching and implementing timeseries algorithm with high level of accuracy given the small dataset (limited to 7 days due to API restrictions)
+* Finding an API for the 5-day weather forecast  which was 1) free 2) provided historical data (most provide forecasts) and 3) looked suitable to work with the city names used in the dataset. Many of the old APIs (Yahoo, Wunderground) had been decommissioned.
 
 ## Other Notes  
 * Later discovered that the NOAA GSOD dataset is freely available on Google Big Query. Whilst I could have used this, it would not have provided me with the opportunity to display data collection, cleaning and SQL skills. A new version of the app may be created in the future which directly taps into the data on Big Query
