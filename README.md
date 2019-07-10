@@ -1,7 +1,7 @@
 # Global Warming Project
 
 **THIS PROJECT IS STILL A WORK IN PROGRESS**  
-Last updated 30 June 2019
+Last updated 07 July 2019
 
 ## Project Goal
 The objective of this project is to create an interactive dashboard which provides information about how global warming is affecting individual cities around the globe. It is hoped that if people are able to see the impact which global warming is having on the city in which they live, that they will be more inclined to take action and help prevent further damage to the globe.
