@@ -9,10 +9,12 @@ The objective of this project is to create an interactive dashboard which provid
 The technical objective of this project is to learn how to use the Dash library for creating interactive dashboards, along with continiously improve my general tech skills (SQL, git, APIs etc).
 
 ## Technology Used
-* Python and common libraries (i.e. Pandas, Dash)
-* MySQL / SQL
-* Google Maps API
+* Python and common libraries (i.e. Pandas, Dash, Plotly)
+* MySQL
+* Google Geocoding API
+* APIUX Weather API
 * Git
+* Heroku
 
 ## Skills Used
 * Python programming
