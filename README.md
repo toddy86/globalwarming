@@ -52,7 +52,7 @@ https://www.apixu.com/api.aspx
 The database folder contains: 
 * SQL code user to generate the MySQL database, tables and constraints
 * **TODO: Finalise and upload the database schema / ERD** 
-* Data dictionary
+* **TODO: Finalise data dictionary**
 
 The database has been created using MySQL 5.7.26
 
