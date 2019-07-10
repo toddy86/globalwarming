@@ -7,6 +7,3 @@ Test Ground.ipynb
 
 # Ignore API keys
 apixu_weather_api_key.txt
-
-# Temp ignore requirements file as not yet finished
-requirements.txt
