@@ -267,7 +267,7 @@ def get_daily_history(city_value):
 
 
 # Setup for get_7day_history function
-file = open("/Users/todddequincey/globalwarming/dashboard/apixu_weather_api_key.txt")
+file = open("/Users/todddequincey/globalwarming/app/apixu_weather_api_key.txt")
 api_key = file.read()
 client = ApixuClient(api_key)
 

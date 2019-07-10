@@ -153,8 +153,8 @@ app.layout = html.Div([
                     # Heading
                     html.Div(
                         [
-                            html.H3("5-Day Forecast")
-                            #html.P("Machine Learning Forecast")
+                            html.H3("5-Day Forecast"),
+                            html.P("Please be patient while the data are fetched...")
                         ], 
                         style={"text-align": "center"}
                     ), 

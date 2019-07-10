@@ -112,3 +112,6 @@ The following are a few examples of the current version of the app. These will b
 **New sidebar menu**   
 ![](https://github.com/toddy86/globalwarming/blob/master/screenshots/screenshot4.png)
 
+**5 Day Weather Forecast**   
+![](https://github.com/toddy86/globalwarming/blob/master/screenshots/screenshot5.png)
+
