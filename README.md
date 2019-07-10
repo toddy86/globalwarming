@@ -82,6 +82,7 @@ The following key data cleaning and pre-processing steps have been completed in 
 * Implement navigation pane to other pages
 * Implement 5-day maximum temperature forecast page based on an machine learning algorithm to predict the temperature. Compare ML prediction to met office forecast
 * Implement a long-range (i.e. 20-50 year) forecast of expected global temperatures using statistical / machine learning methods
+* Host the app on heroku
 
 ## Challenges  
 During the development of this project, there have been many technical and knowledge gap challenges which I have needed to overcome. These challenges have included:  
