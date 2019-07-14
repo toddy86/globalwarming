@@ -8,13 +8,19 @@ The objective of this project is to create an interactive dashboard which provid
   
 The technical objective of this project is to learn how to use the Dash library for creating interactive dashboards, along with continiously improve my general tech skills (SQL, git, APIs etc).
 
+**To-do List**  
+* Refactor code (implement classes, improve design (e.g. better setup than having a functions.py script))
+* Implement exception handling
+* Implement unit tests
+* Move 5-day forecast to separate page and implement nav
+* Implement a long-range (i.e. 20-50 year) forecast of expected global temperatures using statistical / machine learning methods
+
 ## Technology Used
 * Python and common libraries (i.e. Pandas, Dash, Plotly)
 * MySQL
 * Google Geocoding API
 * APIUX Weather API
 * Git
-* Heroku
 
 ## Skills Used
 * Python programming
@@ -79,12 +85,6 @@ The following key data cleaning and pre-processing steps have been completed in 
 **Data Enrichment**  
 * Enriched the GSOD data by adding in the city, state and country name where the weather station is located. Data obtained using the Google Geocoding API, based on the lat and lon coordinates of the weather station
 
-
-**To-do List**  
-* Implement navigation pane to other pages
-* Implement 5-day maximum temperature forecast page based on an machine learning algorithm to predict the temperature. Compare ML prediction to met office forecast
-* Implement a long-range (i.e. 20-50 year) forecast of expected global temperatures using statistical / machine learning methods
-* Host the app on heroku
 
 ## Challenges  
 During the development of this project, there have been many technical and knowledge gap challenges which I have needed to overcome. These challenges have included:  
