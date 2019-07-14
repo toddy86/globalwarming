@@ -1,35 +1,26 @@
-# Import required libraries and custom functions
-from functions import *
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import plotly.graph_objs as go
+from dash.dependencies import Input
+from dash.dependencies import Output
+from weather_records import WeatherRecords
 
-# Dash app
+
 app = dash.Dash(__name__)
 
-# Load external style sheets
 external_css = [
     "https://codepen.io/chriddyp/pen/bWLwgP.css",
     "https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css",
-    "https://use.fontawesome.com/releases/v5.2.0/css/all.css"
-]
-
+    "https://use.fontawesome.com/releases/v5.2.0/css/all.css"]
 for css in external_css:
     app.css.append_css({"external_url": css})
 
-# CREATE MENUS
-# SQL query to return cities
-select_cities = """
-    SELECT CONCAT(IFNULL(StationDetails.City,''), ", ", IFNULL(StationDetails.State,''), ", ", IFNULL(StationDetails.Country,'')) as City
-    FROM StationDetails"""
-df = run_sql_query(select_cities)
+# Initialise WeatherRecords
+wr = WeatherRecords()
 
-# Create menu options
-cities = list(df.City.unique())
-temperature_options = ["Celsius", "Fahrenheit"]
-
-
-# APP LAYOUT
 # Define the app layout
 app.layout = html.Div([
-
     # Left side menu
     html.Div(
         [
@@ -53,7 +44,7 @@ app.layout = html.Div([
                     ),
                     dcc.Dropdown(
                         id='city-selector',
-                        options=[{'label': i, 'value': i} for i in cities],
+                        options=[{'label': i, 'value': i} for i in wr.cities],
                         value='New York, New York, United States',
                         clearable=False
                     )
@@ -70,7 +61,7 @@ app.layout = html.Div([
                     ),
                     dcc.RadioItems(
                         id='temp-selector',
-                        options=[{'label': i, 'value': i} for i in temperature_options],
+                        options=[{'label': i, 'value': i} for i in wr.temperature_options],
                         value='Celsius'
                     )
                 ]
@@ -86,7 +77,6 @@ app.layout = html.Div([
         },
     ),
 
-
     # Main content
     html.Div(
         [
@@ -98,19 +88,19 @@ app.layout = html.Div([
             html.Div(
                 html.Div(
                     [
-                        tile(
+                        wr.tile(
                             "#00cc96",
                             "Change in Min Temperature",
                             "tile1",
                             "tile1_year_range",
                         ),
-                        tile(
+                        wr.tile(
                             "#EF553B",
                             "Change in Max Temperature",
                             "tile2",
                             "tile2_year_range",
                         ),
-                        tile(
+                        wr.tile(
                             "#EF553B",
                             "Change in Avg Temperature",
                             "tile3",
@@ -143,22 +133,15 @@ app.layout = html.Div([
                         ],
                         style={"text-align": "center"}
                     ),
-
                     # 5-day forecast graphic
                     html.Div(
                         [
                             dcc.Graph(id='forecast-graphic')
                         ]
                     )
-
-                    # Graph with last 10 days weather + ML 5-day forecast
-                    # Actual weather from the 15 days in the earliest on record
-                    # HUD of expected accuracy of the model
-                    # Model
                 ]
             )
         ],
-
         # Styling of the main div element
         className="nine columns",
         id="rightpanel",
@@ -170,15 +153,15 @@ app.layout = html.Div([
 ])
 
 
-# CALLBACKS
-# Updates tile values
+# Callbacks to update tile values
 @app.callback(
     Output("tile1", "children"),
     [Input('city-selector', 'value'),
     Input('temp-selector', 'value')],
 )
 def tile1_callback(city_value, temp_value):
-   return calc_temp_change(city_value, temp_value, "MinTemp")
+    return wr.calc_temp_change(city_value, temp_value, "MinTemp")
+
 
 @app.callback(
     Output("tile2", "children"),
@@ -186,7 +169,8 @@ def tile1_callback(city_value, temp_value):
     Input('temp-selector', 'value')],
 )
 def tile2_callback(city_value, temp_value):
-   return calc_temp_change(city_value, temp_value, "MaxTemp")
+    return wr.calc_temp_change(city_value, temp_value, "MaxTemp")
+
 
 @app.callback(
     Output("tile3", "children"),
@@ -194,44 +178,46 @@ def tile2_callback(city_value, temp_value):
     Input('temp-selector', 'value')],
 )
 def tile3_callback(city_value, temp_value):
-   return calc_temp_change(city_value, temp_value, "AvgTemp")
+    return wr.calc_temp_change(city_value, temp_value, "AvgTemp")
 
 
-# Updates the tile year ranges
+# Callbacks to update tile year ranges
 @app.callback(
     Output("tile1_year_range", "children"),
     [Input('city-selector', 'value')],
 )
 def tile1_year_range_callback(city_value):
-    return calc_year_range(city_value)
+    return wr.calc_year_range(city_value)
+
 
 @app.callback(
     Output("tile2_year_range", "children"),
     [Input('city-selector', 'value')],
 )
 def tile2_year_range_callback(city_value):
-    return calc_year_range(city_value)
+    return wr.calc_year_range(city_value)
+
 
 @app.callback(
     Output("tile3_year_range", "children"),
     [Input('city-selector', 'value')],
 )
 def tile3_year_range_callback(city_value):
-    return calc_year_range(city_value)
+    return wr.calc_year_range(city_value)
 
 
-# Historical temperature over time linechart
+# Callback to generate historical temperature linechart
 @app.callback(
     Output('temperature-graphic', 'figure'),
     [Input('city-selector', 'value'),
-    Input('temp-selector', 'value')])
-
+    Input('temp-selector', 'value')]
+)
 def update_graph(city_value, temp_value):
     # Temperature variables to display on the graph
     temp_vars = ["MaxTemp", "MinTemp", "AvgTemp"]
 
     # Calculate df for the city
-    df = calc_city_df(city_value, temp_value)
+    df = wr.calc_city_df(city_value, temp_value)
 
     # Create lineplot for each temp variable
     traces = []
@@ -251,15 +237,15 @@ def update_graph(city_value, temp_value):
     }
 
 
-# 5 day forecast
+# Callback to update 5 day forecast
 @app.callback(
     Output('forecast-graphic', 'figure'),
     [Input('city-selector', 'value'),
-    Input('temp-selector', 'value')])
-
+    Input('temp-selector', 'value')]
+)
 def update_forecast(city_value, temp_value):
     # Get 7 day history + 5 day forecast
-    df = get_recent_weather(city_value, temp_value)
+    df = wr.get_recent_weather(city_value, temp_value)
 
     # Temperature variables to display on the graph - if there isn't any historical data, just plot the MaxTemp and forecast
     if df.columns[-1] == "MaxTemp":
@@ -271,11 +257,10 @@ def update_forecast(city_value, temp_value):
     traces = []
     for i in temp_vars:
         traces.append(go.Scatter(
-                x = df['Date'],
-                y = df[i],
-                name = i
+                x=df['Date'],
+                y=df[i],
+                name=i
         ))
-
     # Generate and return the plot
     return {
         'data': traces,
@@ -285,8 +270,5 @@ def update_forecast(city_value, temp_value):
     }
 
 
-
-
-# Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_hot_reload=True) #http:127.0.0.1:8050/
+    app.run_server(debug=True, dev_tools_hot_reload=True)
